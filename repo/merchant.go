@@ -44,3 +44,54 @@ func (a *Merchant) CreateDB() error {
 	a.MerchantId = int(merchantId)
 	return nil
 }
+
+func (a *Merchant) UpdateDB() error {
+	tx, err := mySqlDB.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	_, err = tx.Exec(" update merchant set MerchantName = ? ,merchantAddress = ? where merchantId = ? ", a.MerchantName, a.MerchantAddress, a.MerchantId)
+	if err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return nil
+	}
+	return nil
+}
+
+func (a *Merchant) DeleteDB() error {
+	tx, err := mySqlDB.Begin()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(" delete from merchant where merchantId = ? ", a.MerchantId)
+	if err != nil {
+		return err
+	}
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *Merchant) SelectDBById() error {
+	var (
+		merchantId      int64
+		merchantName    string
+		merchantAddress string
+	)
+	row := mySqlDB.QueryRow(" select MerchantId,MerchantName,MerchantAddress from merchant where MerchantId = ? ", a.MerchantId)
+	err := row.Scan(&merchantId, &merchantName, &merchantAddress)
+	if err == sql.ErrNoRows {
+		return errors.New("没有找到指定商家")
+	}
+	if err != nil {
+		return err
+	}
+	a.MerchantId = int(merchantId)
+	a.MerchantName = merchantName
+	a.MerchantAddress = merchantAddress
+	return nil
+}

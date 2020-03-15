@@ -31,6 +31,7 @@ func (a *Vegetable) CreateDB() error {
 	if err != sql.ErrNoRows {
 		return errors.New("蔬菜[" + a.VegetableName + " ]已经存在")
 	}
+
 	result, err := tx.Exec(" insert into vegetable(vegetableName,categoryid)values(?,?) ", a.VegetableName, a.CategoryId)
 	if err != nil {
 		return err
@@ -94,7 +95,7 @@ func (a *Vegetable) SelectDBById() error {
 		vegetableName string
 		categoryId    int64
 	)
-	row := mySqlDB.QueryRow(" select vegetableid,vegetablename,categoryid from vegetable where vegetableid = ?  ")
+	row := mySqlDB.QueryRow(" select vegetableid,vegetablename,categoryid from vegetable where vegetableid = ? ; ", a.VegetableId)
 	err := row.Scan(&vegetableId, &vegetableName, &categoryId)
 	if err != nil {
 		return err
